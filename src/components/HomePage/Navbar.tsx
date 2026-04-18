@@ -1,95 +1,116 @@
 import "../../App.css"
-import image from "/favicon.svg"
-import image2 from "/favicon.svg" // Replace with another image path if needed
-import { useState, useRef, useEffect } from "react"
-import { BellRing, ShoppingCart, EllipsisVertical, UserPen, Settings, LogOut } from "lucide-react"
+import image from "/Gemini.png"
+import image2 from "/favicon.svg"
+import { useEffect, useState } from "react"
+import AlertBox from "@/components/UiComponents/AlertBox"
+import {
+    BellRing,
+    ShoppingCart,
+    UserPen,
+    Settings,
+    LogOut,
+} from "lucide-react"
+
 import { useNavigate } from "react-router-dom"
+
+// shadcn components
+import {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
+} from "@/components/ui/dropdown-menu"
+
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { useLocation } from "react-router-dom"
+
+const userDataLocalStorage = localStorage.getItem('userData');
+const userData = (userDataLocalStorage ? JSON.parse(userDataLocalStorage) : false);
 const Navbar = () => {
-    const [showMenu, setShowMenu] = useState(false);
-    const menuRef = useRef(null);
-    const navigation = useNavigate();
+    const navigation = useNavigate()
+    const location = useLocation();
+    const [showAlert, setShowAlert] = useState(false);
+
     useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (menuRef.current && !menuRef.current.contains(event.target)) {
-                setShowMenu(false);
-            }
-        };
-
-        document.addEventListener("mousedown", handleClickOutside);
-
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
+        if (!userData || userData == false) {
+            setShowAlert(true);
+        }
     }, []);
     return (
-        <nav className="flex justify-center items-center bg-purple-500 rounded-b-2xl" ref={menuRef}>
+        <nav className="flex justify-center items-center border-b bg-background">
+            {
+                (location.pathname !== "/login" && location.pathname !== "/signup") ?
+                    <AlertBox showAlert={showAlert} setShowAlert={setShowAlert} description="You are not logged in. Please login to continue." navigateTo="/login" buttonText="Login" />
+                    : null
+            }
             <div className="px-10 h-16 flex justify-between w-11/12">
-                <div className="flex">
-                    <div className=" flex justify-center items-center px-4">
-                        <img src={image} alt="" />
 
-                    </div>
-                    <ul className="hidden lg:flex items-center">
-                        <li className="text-md font-semibold cursor-pointer hover:bg-purple-700 p-2 rounded-full  text-center">Jobs</li>
-                        <li className="text-md font-semibold cursor-pointer hover:bg-purple-700 p-2 rounded-full text-center">Learn</li>
-                        <li className="text-md font-semibold cursor-pointer hover:bg-purple-700 p-2 rounded-full  text-center">Prep Learn</li>
-                        <li className="text-md font-semibold cursor-pointer hover:bg-purple-700 p-2 rounded-full text-center">Career Advice</li>
-                        <li className="text-md font-semibold cursor-pointer hover:bg-purple-700 p-2 rounded-full  text-center">Career Solutions</li>
+                {/* Left */}
+                <div className="flex items-center gap-6">
+                    <img src={image} alt="logo" className="w-8 h-8" />
+
+                    <ul className="hidden lg:flex items-center gap-4">
+                        {["Jobs", "Learn", "Prep Learn", "Career Advice", "Career Solutions"].map((item) => (
+                            <li
+                                key={item}
+                                className="text-sm font-medium cursor-pointer hover:text-primary transition"
+                            >
+                                {item}
+                            </li>
+                        ))}
                     </ul>
                 </div>
-                {/* second side */}
-                <div className="flex justify-center items-center">
-                    {/* ring bell */}
-                    <div className=" flex justify-center items-center px-4">
-                        <BellRing />
-                    </div>
-                    {/* cart */}
-                    <div className=" flex justify-center items-center px-4">
-                        <ShoppingCart />
-                    </div>
-                    {/* Profile */}
-                    <div className="bg-red-400 flex justify-center items-center px-4 rounded-full h-full">
-                        <img src={image2} alt="" />
-                        <p className="text-md font-semibold cursor-pointer">Hi Rahil Shaikh</p>
-                        <EllipsisVertical onClick={() => setShowMenu((prev) => !prev)} />
-                        {showMenu && (
-                            <div className="absolute top-16 right-24 w-40 bg-white shadow-lg rounded-xl p-2">
-                                <div className="flex flex-col gap-2">
 
-                                    {/* Profile */}
-                                    <button
-                                        onClick={() => navigation("/profile")}
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition"
-                                    >
-                                        <UserPen size={18} />
-                                        <span>Profile</span>
-                                    </button>
+                {/* Right */}
+                <div className="flex items-center gap-4">
 
-                                    {/* Settings */}
-                                    <button
-                                        onClick={() => navigation("/setting")}
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition"
-                                    >
-                                        <Settings size={18} />
-                                        <span>Settings</span>
-                                    </button>
+                    <Button variant="ghost" size="icon">
+                        <BellRing className="w-5 h-5" />
+                    </Button>
 
-                                    {/* Logout */}
-                                    <button
-                                        onClick={() => console.log("logout")}
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition text-red-500"
-                                    >
-                                        <LogOut size={18} />
-                                        <span>Logout</span>
-                                    </button>
+                    <Button variant="ghost" size="icon">
+                        <ShoppingCart className="w-5 h-5" />
+                    </Button>
 
-                                </div>
+                    {/* Profile Dropdown */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <div className="flex items-center gap-2 cursor-pointer">
+                                <Avatar className="h-8 w-8">
+                                    <AvatarImage src={image2} />
+                                    <AvatarFallback>RS</AvatarFallback>
+                                </Avatar>
+                                <span className="hidden md:block text-sm font-medium">
+                                    Rahil
+                                </span>
                             </div>
-                        )}
-                    </div>
+                        </DropdownMenuTrigger>
+
+                        <DropdownMenuContent align="end" className="w-44">
+                            <DropdownMenuItem onClick={() => navigation("/profile")}>
+                                <UserPen className="mr-2 h-4 w-4" />
+                                Profile
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem onClick={() => navigation("/setting")}>
+                                <Settings className="mr-2 h-4 w-4" />
+                                Settings
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem
+                                onClick={() => console.log("logout")}
+                                className="text-red-500 focus:text-red-500"
+                            >
+                                <LogOut className="mr-2 h-4 w-4" />
+                                Logout
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
                 </div>
             </div>
-        </nav >
+        </nav>
     )
 }
 
