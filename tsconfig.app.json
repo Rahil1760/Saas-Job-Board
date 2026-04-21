@@ -13,7 +13,7 @@
     ],
     "skipLibCheck": true,
     /* ✅ ADD THESE */
-    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@/*": [
         "./src/*"
